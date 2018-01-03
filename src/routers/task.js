@@ -15,7 +15,7 @@ module.exports = app => {
 
         const step1 = {
             urls : [{ path : "http://www.meishij.net", timer: 1 }],
-            exec : "body['a']=$('title').text();",
+            exec : "body[\"a\"]=$(\"title\").text();",
             mode: 2
         };
         

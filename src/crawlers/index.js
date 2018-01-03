@@ -22,14 +22,20 @@ const q = async.queue(function (obj, cb) {
             } else {
                 returnValue = await phantomCrawler({ url: path, exec })
             }
+            const _newStep = await Steps.findOne({ _id }).populate("results").exec();
             const currentResultScheme = new Results({
+                stepId: _newStep,
                 url: path, 
                 content: returnValue.data
             });
             const savedResult = await currentResultScheme.save();
-            const _newStep = await Steps.findOneAndUpdate({ _id }, { $set : { result: savedResult }}, { new : true }).populate("result").exec();
+            // const _newStep = await Steps.findOneAndUpdate({ _id }, { $set : { results: savedResult }}, { new : true }).populate("result").exec();
+            // const _newStep = await Steps.findOne({ _id }).populate("results").exec();
+            _newStep.results.push(savedResult);
+            _newStep.save();
             callback(null, {
                 taskId: obj._id,
+                stepId: _id,
                 stepIndex: obj.stepIndex,
                 stepCounter: obj.steps.length
             })
@@ -37,10 +43,22 @@ const q = async.queue(function (obj, cb) {
         },delay)
     }, async (err, results) => {
         if (err) throw err
-        const { taskId, stepIndex, stepCounter } = results[0];
+        const { taskId, stepId, stepIndex, stepCounter } = results[0];
+        await Steps.findOneAndUpdate({ _id: stepId }, { $set : { completed: true }});
         if(stepIndex < stepCounter-1) {
             const _obj = await Tasks.findOneAndUpdate({ _id: taskId}, { $set : { stepIndex: stepIndex+1}}, { new : true }).populate("steps").exec();
             q.push(_obj)
+        } else {
+            const _obj = await Tasks.findOne({ _id: taskId}).populate("steps").exec();
+            let completed = true;
+            for(let step of _obj.steps) {
+                if(!step.completed) {
+                    completed = false;
+                    break;
+                }
+            }
+            _obj.completed = completed;
+            _obj.save();
         }
         cb();
     })
