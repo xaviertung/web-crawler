@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npm run clusters",
+    "clusters": "babel-node src/cluster.js"
   },
   "author": "",
   "license": "ISC",
@@ -12,8 +14,12 @@
     "async": "^2.6.0",
     "bluebird": "^3.5.1",
     "cheerio": "^1.0.0-rc.2",
+    "cluster": "^0.7.7",
+    "consign": "^0.1.6",
+    "express": "^4.16.2",
     "mongodb": "2",
     "mongoose": "4.11.9",
+    "os": "^0.1.1",
     "phantom": "^4.0.12",
     "request": "^2.83.0",
     "request-promise": "^4.2.2"

@@ -2,29 +2,9 @@ const Promise = require('bluebird');
 const mongoose = require('../utils/db-utils');
 const Tasks = require('../schemas/tasks');
 const Steps = require('../schemas/steps');
-const crawlersQueue = require('../crawlers/crawlers-queue');
-
-const tasks1 = new Tasks({
-});
-
-const step1 = new Steps({
-    urls : [{ path : "http://www.meishij.net", timer: 1 }],
-    exec : "body['a']=$('title').text();",
-    mode: 2
-})
-
-const step2 = new Steps({
-    urls : [{ path : "http://www.baidu.com?r=21&userId=1"}, { path : "http://www.baidu.com?r=22&userId=1"}],
-    exec : "body['a']=$('title').text();",
-    mode: 1
-})
+const crawler = require('../crawlers');
 
 
-const step3 = new Steps({
-    urls : [{ path : "http://www.baidu.com?r=31&userId=1"}],
-    exec : "body['a']=$('title').text();",
-    mode: 1
-})
 
 
 // tasks1.save().then(function(task) {
@@ -50,23 +30,31 @@ const step3 = new Steps({
 //     console.log(err)
 // })
 
-tasks1.save().then(async function(task) {
+const testTask = async (steps) => {
 
-    step1.taskId = task;
-    step2.taskId = task;
-    step3.taskId = task;
-    const _step1 = await step1.save();
-    const _step2 = await step2.save();
-    const _step3 = await step3.save();
+    const tasks1 = new Tasks({
+    });
 
-    task.steps.push(_step1);
-    task.steps.push(_step2);
-    task.steps.push(_step3);
     
-    const _task = await task.save();
-    
-    const task21 = await Tasks.findOne({ _id: _task._id}).populate("steps").exec();
-    crawlersQueue.push(JSON.parse(JSON.stringify(task21)))
-}).catch(err => {
-    console.log(err)
-})
+
+    if(steps.length>0) {
+        const task = await tasks1.save();
+
+        const stepSchemas = steps.map(async (step) => {
+            const currentStepSchema = new Steps(step);
+            currentStepSchema.taskId = task;
+            return await currentStepSchema.save();
+        });
+
+        for(let step of stepSchemas) {
+            task.steps.push(await step);
+        }
+        
+        const _task = await task.save();
+        crawler.push(await Tasks.populate(_task, { path: "steps"}))
+    }
+
+
+}
+
+module.exports = testTask;
