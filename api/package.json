@@ -1,0 +1,35 @@
+{
+  "name": "web-crawler",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npm run clusters",
+    "clusters": "babel-node src/cluster.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "async": "^2.6.0",
+    "bluebird": "^3.5.1",
+    "body-parser": "^1.18.2",
+    "cheerio": "^1.0.0-rc.2",
+    "cluster": "^0.7.7",
+    "compression": "^1.7.1",
+    "consign": "^0.1.6",
+    "cors": "^2.8.4",
+    "express": "^4.16.2",
+    "helmet": "^3.9.0",
+    "mongodb": "2",
+    "mongoose": "4.11.9",
+    "morgan": "^1.9.0",
+    "os": "^0.1.1",
+    "phantom": "^4.0.12",
+    "request": "^2.83.0",
+    "request-promise": "^4.2.2"
+  },
+  "devDependencies": {
+    "webpack": "^3.10.0"
+  }
+}
